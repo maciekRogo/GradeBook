@@ -25,9 +25,15 @@ class Mark:
         combobox = ttk.Combobox(root, values=subjects, state="readonly")
         combobox.set("Wybierz przedmiot")
         combobox.pack(pady=20)
-        student_grade = tk.Entry(root)
+        def validate_grade(new_value):
+            return new_value=="" or new_value == "-" or new_value == "+" or new_value == "1" or new_value == "2" or new_value == "3" or new_value == "4" or new_value == "5" or new_value == "6"
+        validate_command = (root.register(validate_grade),"%P")
+        student_grade = tk.Entry(root,validate="key", validatecommand=validate_command)
         student_grade.pack(pady=20)
         def submit():
+            if combobox.get() == "Wybierz przedmiot" or student_grade.get() == "":
+                tk.messagebox.showerror("Błąd", "Proszę wybrać przedmiot i wpisać ocenę")
+                return
             query = "SELECT id FROM przedmiot WHERE nazwa = ?"
             cur.execute(query, (combobox.get(),))
             subject_id = cur.fetchone()[0]
@@ -37,6 +43,7 @@ class Mark:
             print("Ocena dodana")
             root.destroy()
             tk.messagebox.showinfo("Ocena", "Ocena została dodana")
+
         submit_button = tk.Button(root, text="Dodaj ocenę", command=submit)
         submit_button.pack(pady=20)
         root.mainloop()
